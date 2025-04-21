@@ -1,0 +1,12 @@
+[submodule "services/storage-ms"]
+	path = services/storage-ms
+	url = git@github.com:thientoan3596/tdrive.storage-ms.git
+[submodule "services/security-ms"]
+	path = services/security-ms
+	url = git@github.com:thientoan3596/tdrive.security-ms.git
+[submodule "services/api-gateway"]
+	path = services/api-gateway
+	url = git@github.com:thientoan3596/tdrive.api-gateway.git
+[submodule "services/service-registry"]
+	path = services/service-registry
+	url = git@github.com:thientoan3596/tdrive.service-registry.git

@@ -1,0 +1,729 @@
+{
+	"info": {
+		"_postman_id": "4d0f8de6-0e9b-43ca-905b-0e890bf51772",
+		"name": "TDRIVE_V2",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38343487"
+	},
+	"item": [
+		{
+			"name": "security-ms",
+			"item": [
+				{
+					"name": "register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\":{\r",
+									"        \"accessToken\":{\"type\":\"string\"},\r",
+									"        \"refreshToken\":{\"type\":\"string\"}\r",
+									"    }\r",
+									"}\r",
+									"\r",
+									"const repsonse = pm.response.json();\r",
+									"pm.test(\"Expect response status code to be 200\", ()=>{\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Expect schema\",()=>{\r",
+									"    pm.response.to.have.jsonSchema(schema); \r",
+									"});\r",
+									"pm.environment.set(\"accessToken\",repsonse.accessToken);\r",
+									"pm.environment.set(\"refreshToken\",repsonse.refreshToken);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"var runCount = parseInt(pm.environment.get(\"run\"));\r",
+									"pm.environment.set(\"run\",runCount+1);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"postman_run00{{run}}\",\r\n    \"email\":\"postman_run{{run}}@email.com\",\r\n    \"password\":\"password\",\r\n    \"passwordConfirm\":\"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostname}}:{{port}}/{{security_endpoint}}/{{version}}/register",
+							"host": [
+								"{{hostname}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{security_endpoint}}",
+								"{{version}}",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "authenticate",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\":{\r",
+									"        \"accessToken\":{\"type\":\"string\"},\r",
+									"        \"refreshToken\":{\"type\":\"string\"}\r",
+									"    }\r",
+									"}\r",
+									"const repsonse = pm.response.json();\r",
+									"pm.test(\"Expect response status code to be 200\", ()=>{\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Expect schema\",()=>{\r",
+									"    pm.response.to.have.jsonSchema(schema); \r",
+									"});\r",
+									"pm.environment.set(\"accessToken\",repsonse.accessToken);\r",
+									"pm.environment.set(\"refreshToken\",repsonse.refreshToken);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"postman_run{{run}}@email.com\",\r\n    \"password\":\"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostname}}:{{port}}/{{security_endpoint}}/{{version}}/authenticate",
+							"host": [
+								"{{hostname}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{security_endpoint}}",
+								"{{version}}",
+								"authenticate"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "refresh token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\":{\r",
+									"        \"accessToken\":{\"type\":\"string\"},\r",
+									"        \"refreshToken\":{\"type\":\"string\"}\r",
+									"    }\r",
+									"}\r",
+									"const repsonse = pm.response.json();\r",
+									"pm.test(\"Expect response status code to be 200\", ()=>{\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Expect schema\",()=>{\r",
+									"    pm.response.to.have.jsonSchema(schema); \r",
+									"});\r",
+									"pm.environment.set(\"accessToken\",repsonse.accessToken);\r",
+									"pm.environment.set(\"refreshToken\",repsonse.refreshToken);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{refreshToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\":\"postman_run{{run}}@email.com\",\r\n    \"password\":\"password\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostname}}:{{port}}/{{security_endpoint}}/{{version}}/refresh-token",
+							"host": [
+								"{{hostname}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{security_endpoint}}",
+								"{{version}}",
+								"refresh-token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "storage-ms",
+			"item": [
+				{
+					"name": "get root",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\":{\r",
+									"        \"id\":{\"type\":\"string\"},\r",
+									"        \"name\":{\"type\":\"string\"},\r",
+									"        \"type\":{\"type\":\"string\"},\r",
+									"        \"size\":{\"type\":\"number\"},\r",
+									"        \"owner\":{\"type\":\"string\"},\r",
+									"    }\r",
+									"}\r",
+									"const repsonse = pm.response.json();\r",
+									"pm.test(\"Expect response status code to be 200\", ()=>{\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Expect schema\",()=>{\r",
+									"    pm.response.to.have.jsonSchema(schema); \r",
+									"});\r",
+									"pm.environment.set(\"owner\",repsonse.owner);\r",
+									"pm.environment.set(\"root_dir\",repsonse.id);\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "921fd593-33a0-47bc-ae0b-ca58320e737c",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "X-User-Role",
+								"value": "User",
+								"type": "text",
+								"disabled": true
+							},
+							{
+								"key": "X-User-Name",
+								"value": "Postman",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{hostname}}:{{port}}/{{storage_endpoint}}/{{version}}/root",
+							"host": [
+								"{{hostname}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{storage_endpoint}}",
+								"{{version}}",
+								"root"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create folder",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\":{\r",
+									"        \"id\":{\"type\":\"string\"},\r",
+									"        \"name\":{\"type\":\"string\"},\r",
+									"        \"type\":{\"type\":\"string\"},\r",
+									"        \"parentId\":{\"type\":\"string\"},\r",
+									"        \"size\":{\"type\":\"number\"},\r",
+									"        \"owner\":{\"type\":\"string\"},\r",
+									"    }\r",
+									"}\r",
+									"const repsonse = pm.response.json();\r",
+									"pm.test(\"Expect response status code to be 200\", ()=>{\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Expect schema\",()=>{\r",
+									"    pm.response.to.have.jsonSchema(schema); \r",
+									"});\r",
+									"pm.test(\"Validate Root\",()=>{\r",
+									"    pm.expect(repsonse.parentId).to.eql(pm.environment.get(\"root_dir\"));\r",
+									"    pm.expect(repsonse.owner).to.eql(pm.environment.get(\"owner\"));\r",
+									"\r",
+									"});\r",
+									"pm.environment.set(\"inserted_dir\",repsonse.id);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "921fd593-33a0-47bc-ae0b-ca58320e737c",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"Folder {{folder_count}}\",\r\n    \"type\":\"Folder\",\r\n    \"parentId\":\"{{root_dir}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostname}}:{{port}}/{{storage_endpoint}}/{{version}}/folder",
+							"host": [
+								"{{hostname}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{storage_endpoint}}",
+								"{{version}}",
+								"folder"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get inserted folder",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\":{\r",
+									"        \"id\":{\"type\":\"string\"},\r",
+									"        \"name\":{\"type\":\"string\"},\r",
+									"        \"type\":{\"type\":\"string\"},\r",
+									"        \"parentId\":{\"type\":\"string\"},\r",
+									"        \"size\":{\"type\":\"number\"},\r",
+									"        \"owner\":{\"type\":\"string\"},\r",
+									"    }\r",
+									"}\r",
+									"const repsonse = pm.response.json();\r",
+									"pm.test(\"Expect response status code to be 200\", ()=>{\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Expect schema\",()=>{\r",
+									"    pm.response.to.have.jsonSchema(schema); \r",
+									"});\r",
+									"pm.test(\"Validate Root\",()=>{\r",
+									"    pm.expect(repsonse.parentId).to.eql(pm.environment.get(\"root_dir\"));\r",
+									"    pm.expect(repsonse.id).to.eql(pm.environment.get(\"sub_dir\"));\r",
+									"\r",
+									"    pm.expect(repsonse.owner).to.eql(pm.environment.get(\"owner\"));\r",
+									"\r",
+									"});\r",
+									"\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "921fd593-33a0-47bc-ae0b-ca58320e737c",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"Folder {{folder_count}}\",\r\n    \"type\":\"Folder\",\r\n    \"parentId\":\"{{root_dir}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostname}}:{{port}}/{{storage_endpoint}}/{{version}}/{{inserted_dir}}",
+							"host": [
+								"{{hostname}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{storage_endpoint}}",
+								"{{version}}",
+								"{{inserted_dir}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create file",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\":{\r",
+									"        \"id\":{\"type\":\"string\"},\r",
+									"        \"name\":{\"type\":\"string\"},\r",
+									"        \"type\":{\"type\":\"string\"},\r",
+									"        \"parentId\":{\"type\":\"string\"},\r",
+									"        \"size\":{\"type\":\"number\"},\r",
+									"        \"owner\":{\"type\":\"string\"},\r",
+									"    }\r",
+									"}\r",
+									"const repsonse = pm.response.json();\r",
+									"pm.test(\"Expect response status code to be 200\", ()=>{\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Expect schema\",()=>{\r",
+									"    pm.response.to.have.jsonSchema(schema); \r",
+									"});\r",
+									"pm.test(\"Validate Root\",()=>{\r",
+									"    pm.expect(repsonse.parentId).to.eql(pm.environment.get(\"inserted_dir\"));\r",
+									"    pm.expect(repsonse.owner).to.eql(pm.environment.get(\"owner\"));\r",
+									"});\r",
+									"pm.environment.set(\"inserted_file\",repsonse.id);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "921fd593-33a0-47bc-ae0b-ca58320e737c",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/C:/Users/Toan-Desktop/Desktop/Img/medieval.png"
+								},
+								{
+									"key": "parent",
+									"value": "{{sub_dir}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{hostname}}:{{port}}/{{storage_endpoint}}/{{version}}/file",
+							"host": [
+								"{{hostname}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{storage_endpoint}}",
+								"{{version}}",
+								"file"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get inserted file",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const schema = {\r",
+									"    \"type\": \"object\",\r",
+									"    \"properties\":{\r",
+									"        \"id\":{\"type\":\"string\"},\r",
+									"        \"name\":{\"type\":\"string\"},\r",
+									"        \"type\":{\"type\":\"string\"},\r",
+									"        \"parentId\":{\"type\":\"string\"},\r",
+									"        \"size\":{\"type\":\"number\"},\r",
+									"        \"owner\":{\"type\":\"string\"},\r",
+									"    }\r",
+									"}\r",
+									"const repsonse = pm.response.json();\r",
+									"pm.test(\"Expect response status code to be 200\", ()=>{\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"pm.test(\"Expect schema\",()=>{\r",
+									"    pm.response.to.have.jsonSchema(schema); \r",
+									"});\r",
+									"pm.test(\"Validate Root\",()=>{\r",
+									"    pm.expect(repsonse.parentId).to.eql(pm.environment.get(\"inserted_dir\"));\r",
+									"    pm.expect(repsonse.id).to.eql(pm.environment.get(\"inserted_file\"));\r",
+									"    pm.expect(repsonse.owner).to.eql(pm.environment.get(\"owner\"));\r",
+									"\r",
+									"});\r",
+									"pm.environment.set(\"sub_dir\",repsonse.id);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "921fd593-33a0-47bc-ae0b-ca58320e737c",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"Folder {{folder_count}}\",\r\n    \"type\":\"Folder\",\r\n    \"parentId\":\"{{root_dir}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostname}}:{{port}}/{{storage_endpoint}}/{{version}}/{{inserted_file}}",
+							"host": [
+								"{{hostname}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{storage_endpoint}}",
+								"{{version}}",
+								"{{inserted_file}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete dir",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{hostname}}:{{port}}/{{storage_endpoint}}/{{version}}/{{inserted_dir}}",
+							"host": [
+								"{{hostname}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{storage_endpoint}}",
+								"{{version}}",
+								"{{inserted_dir}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get inserted folder not found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const repsonse = pm.response.json();\r",
+									"pm.test(\"Expect response status code to be 200\", ()=>{\r",
+									"    pm.response.to.have.status(404);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-User-Id",
+								"value": "921fd593-33a0-47bc-ae0b-ca58320e737c",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\":\"Folder {{folder_count}}\",\r\n    \"type\":\"Folder\",\r\n    \"parentId\":\"{{root_dir}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{hostname}}:{{port}}/{{storage_endpoint}}/{{version}}/{{inserted_dir}}",
+							"host": [
+								"{{hostname}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{storage_endpoint}}",
+								"{{version}}",
+								"{{inserted_dir}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

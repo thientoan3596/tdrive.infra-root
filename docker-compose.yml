@@ -1,0 +1,185 @@
+services:
+  mysql-security-db:
+    container_name: mysql-security-db
+    image: mysql:8.0
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_0900_ai_ci
+      --init-connect='SET NAMES utf8mb4;'
+      --skip-character-set-client-handshake
+    environment:
+      MYSQL_USER: ${SECURITY_DB_USER}
+      MYSQL_PASSWORD: ${SECURITY_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${SECURITY_DB_ROOT_PASSWORD}
+      TZ: ${TZ:-Asia/Ho_Chi_Minh}
+    ports:
+      - "${SECURITY_DB_PORT:-3307}:3306"
+    volumes:
+      - ./databases/mysql/security-db/.data:/var/lib/mysql
+      - ./databases/mysql/security-db/init:/docker-entrypoint-initdb.d
+    networks:
+      - tdrive
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 30s
+      start_period: 20s
+      retries: 6
+  mysql-storage-db:
+    container_name: mysql-storage-db
+    image: mysql:8.0
+    command: >
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_0900_ai_ci
+      --init-connect='SET NAMES utf8mb4;'
+      --skip-character-set-client-handshake
+    environment:
+      MYSQL_USER: ${STORAGE_DB_USER}
+      MYSQL_PASSWORD: ${STORAGE_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${STORAGE_DB_ROOT_PASSWORD}
+      TZ: ${TZ:-Asia/Ho_Chi_Minh}
+    ports:
+      - "${STORAGE_DB_PORT:-3036}:3306"
+    volumes:
+      - ./databases/mysql/storage-db/.data:/var/lib/mysql
+      - ./databases/mysql/storage-db/init:/docker-entrypoint-initdb.d
+    networks:
+      - tdrive
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 30s
+      start_period: 20s
+      retries: 6
+  service-registry:
+    container_name: service-registry
+    build:
+      context: ./services/service-registry/
+      dockerfile: Dockerfile
+    environment:
+      EUREKA_INSTANCE_HOSTNAME: ${SERVICE_REGISTRY_HOSTNAME:-host.docker.internal}
+    ports:
+      - "${SERVICE_REGISTRY_PORT:-8761}:8761"
+    networks:
+      - tdrive
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          'curl -f http://localhost:8761/actuator/health | grep -q ''"status":"UP"''',
+        ]
+      interval: 25s
+      retries: 5
+      start_period: 15s
+      timeout: 20s
+      disable: false
+  api-gateway:
+    container_name: api-gateway
+    build:
+      context: ./services/api-gateway/
+      dockerfile: Dockerfile
+    environment:
+      SERVER_PORT: ${API_GATEWAY_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      EUREKA_SERVER_URL: "http://${SERVICE_REGISTRY_HOSTNAME:-host.docker.internal}:${SERVICE_REGISTRY_PORT:-8761}/eureka/"
+      ACTUATOR_EXPOSURE: health,env
+      ACTUATOR_SHOW_ENV: ALWAYS
+      APPLICATION_NAME: api-gateway
+      ROUTE_SECURITY_URI: lb://security-ms
+      ROUTE_STORAGE_URI: lb://storage-ms
+    ports:
+      - "${API_GATEWAY_PORT:-8080}:8080"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          'curl -f http://localhost:${API_GATEWAY_PORT}/api-gateway/actuator/health | grep -q ''"status":"UP"''',
+        ]
+      interval: 25s
+      retries: 5
+      start_period: 15s
+      timeout: 20s
+      disable: false
+    networks:
+      - tdrive
+    depends_on:
+      service-registry:
+        condition: service_healthy
+  storage-ms:
+    container_name: storage-ms
+    build:
+      context: ./services/storage-ms/
+      dockerfile: Dockerfile
+    environment:
+      SERVER_PORT: ${STORAGE_MS_PORT}
+      SPRINGDOC_SECURE: ${SPRINGDOC_SECURE}
+      SPRING_APPLICATION_NAME: storage-ms
+      EUREKA_SERVER_URL: "http://${SERVICE_REGISTRY_HOSTNAME:-host.docker.internal}:${SERVICE_REGISTRY_PORT:-8761}/eureka/"
+      DB_URL: "r2dbc:mysql://mysql-storage-db:3306/${STORAGE_DB_DATABASENAME}"
+      DB_USER: ${STORAGE_DB_USER}
+      DB_PASSWORD: ${STORAGE_DB_PASSWORD}
+      SECURE_ACTUATORS: ${SECURE_ACTUATORS}
+    volumes:
+      - ./storage:/app/storage
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          'curl -f http://localhost:${STORAGE_MS_PORT}/actuator/health | grep -q ''"status":"UP"''',
+        ]
+      interval: 15s
+      timeout: 15s
+      retries: 2
+      start_period: 20s
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-storage-db:
+        condition: service_healthy
+    networks:
+      - tdrive
+  security-ms:
+    container_name: security-ms
+    build:
+      context: ./services/security-ms/
+      dockerfile: Dockerfile
+    environment:
+      SERVER_PORT: ${SECURITY_MS_PORT}
+      SPRINGDOC_SECURE: ${SPRINGDOC_SECURE}
+      SPRING_APPLICATION_NAME: security-ms
+      EUREKA_SERVER_URL: "http://${SERVICE_REGISTRY_HOSTNAME}:${SERVICE_REGISTRY_PORT}/eureka/"
+      DB_URL: "r2dbc:mysql://mysql-security-db:3306/${SECURITY_DB_DATABASENAME}"
+      DB_USER: ${SECURITY_DB_USER}
+      DB_PASSWORD: ${SECURITY_DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh",
+          "-c",
+          'curl -f http://localhost:${SECURITY_MS_PORT}/actuator/health | grep -q ''"status":"UP"''',
+        ]
+      interval: 25s
+      retries: 5
+      start_period: 15s
+      timeout: 20s
+      disable: false
+    ports:
+      - "${SECURITY_MS_PORT}:${SECURITY_MS_PORT}"
+    depends_on:
+      service-registry:
+        condition: service_healthy
+      mysql-security-db:
+        condition: service_healthy
+    networks:
+      - tdrive
+networks:
+  tdrive:
+    driver: bridge
