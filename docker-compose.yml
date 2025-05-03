@@ -180,6 +180,20 @@ services:
         condition: service_healthy
     networks:
       - tdrive
+  frontend:
+    container_name: nginx-vue
+    environment:
+      - API_HOST=api-gateway:8080
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+    ports:
+      - "81:80"
+    networks:
+      - tdrive
+    depends_on:
+      api-gateway:
+        condition: service_healthy
 networks:
   tdrive:
     driver: bridge
